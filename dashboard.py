@@ -8,9 +8,6 @@ from langchain.vectorstores import Pinecone
 from langchain.callbacks import get_openai_callback
 from langchain.chains.question_answering import load_qa_chain
 #import environment variables
-from dotenv import load_dotenv
-load_dotenv()
-import os
 import PyPDF2
 
 # Streamlit Setup
