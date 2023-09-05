@@ -2,3 +2,4 @@ OpenAI
 pinecone-client
 langchain
 PyPDF2
+tiktoken
