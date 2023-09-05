@@ -19,7 +19,10 @@ pinecone.init(api_key=pinecone_api_key, environment="us-west1-gcp-free")
 embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
 
 # Create a variable to hold the current index name
-current_index_name = None
+indexes = pinecone.list_indexes()
+if indexes:  # Check that the list is not empty
+    current_index_name = indexes[0]
+
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -40,8 +43,7 @@ if uploaded_file is not None:
     new_index_name = 'docindex'  # Create a unique index name
 
     # Delete existing index if there is one
-    if current_index_name in pinecone.list_indexes():
-        pinecone.delete_index(current_index_name)
+    pinecone.delete_index(current_index_name)
 
     # Update the current index name
     current_index_name = new_index_name
