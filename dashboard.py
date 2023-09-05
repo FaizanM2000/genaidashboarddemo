@@ -6,22 +6,16 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
 from langchain.callbacks import get_openai_callback
 from langchain.chains.question_answering import load_qa_chain
-#import environment variables
 import PyPDF2
-import uuid
-
+import uuid  # <-- Don't forget to import uuid
 
 # Streamlit Setup
 st.title('Search Demo')
 openai_api_key = st.secrets['OPENAI_API_KEY']
 pinecone_api_key = st.secrets['PINECONE_API_KEY']
 
-# Initialize Pinecone
-pinecone.init(
-    api_key=pinecone_api_key,
-    environment="us-west1-gcp-free"  # Replace with your environment
-)
-embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
+# Initialize Pinecone only once
+pinecone.init(api_key=pinecone_api_key, environment="us-west1-gcp-free")
 
 # Create a variable to hold the current index name
 current_index_name = None
@@ -29,41 +23,37 @@ current_index_name = None
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Upload PDF or Text File
-
-
+# Function to read PDF files
 def read_pdf(uploaded_pdf):
     pdf_reader = PyPDF2.PdfReader(uploaded_pdf)
-    num_pages = len(pdf_reader.pages) 
-    
+    num_pages = len(pdf_reader.pages)
     text_content = ""
-
     for page_num in range(num_pages):
         page = pdf_reader.pages[page_num]
         text_content += page.extract_text()
-    
     return text_content
 
+# File upload logic
 uploaded_file = st.file_uploader("Choose a text or PDF file", type=['txt', 'pdf'])
-
 if uploaded_file is not None:
     unique_id = uuid.uuid4().hex  # Generate a unique id
     new_index_name = f'testsearchbook-{unique_id}'  # Create a unique index name
 
     # Delete existing index if there is one
-    if current_index_name is not None and current_index_name in pinecone.list_indexes():
+    if current_index_name and current_index_name in pinecone.list_indexes():
         pinecone.delete_index(current_index_name)
 
     # Update the current index name
     current_index_name = new_index_name
+
+    # Create a new Pinecone index
+    pinecone.create_index("example-index", dimension=1536, metric="cosine")
 
     
     if uploaded_file.type == "application/pdf":
         file_content = read_pdf(uploaded_file)
     else:
         file_content = uploaded_file.read().decode('utf-8')
-
-    # ... (rest of your code)
 
 
     # Split the file content
