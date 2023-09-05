@@ -1,3 +1,4 @@
 OpenAI
 pinecone-client
 langchain
+PyPDF2
