@@ -15,8 +15,8 @@ import PyPDF2
 
 # Streamlit Setup
 st.title('Search Demo')
-openai_api_key = os.getenv('OPENAI_API_KEY')
-pinecone_api_key = os.getenv('PINECONE_API_KEY')
+openai_api_key = st.secrets('OPENAI_API_KEY')
+pinecone_api_key = st.secrets('PINECONE_API_KEY')
 
 # Initialize Pinecone
 pinecone.init(
