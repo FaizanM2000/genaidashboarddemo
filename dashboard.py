@@ -16,6 +16,7 @@ pinecone_api_key = st.secrets['PINECONE_API_KEY']
 
 # Initialize Pinecone only once
 pinecone.init(api_key=pinecone_api_key, environment="us-west1-gcp-free")
+embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
 
 # Create a variable to hold the current index name
 current_index_name = None
@@ -40,14 +41,14 @@ if uploaded_file is not None:
     new_index_name = f'testsearchbook-{unique_id}'  # Create a unique index name
 
     # Delete existing index if there is one
-    if current_index_name and current_index_name in pinecone.list_indexes():
+    if current_index_name in pinecone.list_indexes():
         pinecone.delete_index(current_index_name)
 
     # Update the current index name
     current_index_name = new_index_name
 
     # Create a new Pinecone index
-    pinecone.create_index("example-index", dimension=1536, metric="cosine")
+    pinecone.create_index(current_index_name, dimension=1536, metric="cosine")
 
     
     if uploaded_file.type == "application/pdf":
