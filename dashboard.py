@@ -16,33 +16,27 @@ openai_api_key = st.secrets['OPENAI_API_KEY']
 pinecone_api_key = st.secrets['PINECONE_API_KEY']
 
 # Initialize Pinecone
-pinecone.init(
-    api_key=pinecone_api_key,
-    environment="us-west1-gcp-free"  # Replace with your environment
-)
-index_name = 'testsearchbook'
-embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
+pinecone.init(api_key=pinecone_api_key, environment="us-west1-gcp-free")
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-# Upload PDF or Text File
-
-
-def read_pdf(uploaded_pdf):
-    pdf_reader = PyPDF2.PdfReader(uploaded_pdf)
-    num_pages = len(pdf_reader.pages) 
-    
-    text_content = ""
-
-    for page_num in range(num_pages):
-        page = pdf_reader.pages[page_num]
-        text_content += page.extract_text()
-    
-    return text_content
+# Create a variable to hold the current index name
+current_index_name = None
 
 uploaded_file = st.file_uploader("Choose a text or PDF file", type=['txt', 'pdf'])
+
 if uploaded_file is not None:
+    unique_id = uuid.uuid4().hex  # Generate a unique id
+    new_index_name = f'testsearchbook-{unique_id}'  # Create a unique index name
+
+    # Delete existing index if there is one
+    if current_index_name is not None and current_index_name in pinecone.list_indexes():
+        pinecone.delete_index(current_index_name)
+
+    # Update the current index name
+    current_index_name = new_index_name
+
+    # Create a new index
+    pinecone.create_index(name=current_index_name, metric='cosine', shards=1)
+    
     if uploaded_file.type == "application/pdf":
         file_content = read_pdf(uploaded_file)
     else:
