@@ -37,8 +37,7 @@ def read_pdf(uploaded_pdf):
 # File upload logic
 uploaded_file = st.file_uploader("Choose a text or PDF file", type=['txt', 'pdf'])
 if uploaded_file is not None:
-    unique_id = uuid.uuid4().hex  # Generate a unique id
-    new_index_name = f'testsearchbook-{unique_id}'  # Create a unique index name
+    new_index_name = 'docindex'  # Create a unique index name
 
     # Delete existing index if there is one
     if current_index_name in pinecone.list_indexes():
