@@ -1,6 +1,6 @@
 import streamlit as st
-import tqdm
-import openai, langchain, pinecone
+
+import langchain, pinecone
 from langchain.llms import OpenAI
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -25,6 +25,9 @@ pinecone.init(
 )
 index_name = 'testsearchbook'
 embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
 # Upload PDF or Text File
 
@@ -69,17 +72,15 @@ if uploaded_file is not None:
         llm = OpenAI(temperature=0, openai_api_key=openai_api_key, max_tokens=300)
         with get_openai_callback() as cb:
             query = input_text
-            docs = book_docsearch.similarity_search(query, top_k=2)
+            docs = book_docsearch.similarity_search(query,k=2)
             chain = load_qa_chain(llm, chain_type="stuff")
             answers = chain.run(input_documents=docs, question=query)
-
+            
+            # Append user's query and bot's answer to the session state messages
             st.session_state.messages.append({"role": "user", "content": query})
-            st.session_state.messages.append({"role": "assistant", "content": answers})
+            st.session_state.messages.append({"role": "assistant", "content": answers})  # Make sure 'answers' is in a displayable format
     
-    # Display existing chat messages
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    
     
     # Form for question input
     with st.form('my_form'):
@@ -87,3 +88,8 @@ if uploaded_file is not None:
         submitted = st.form_submit_button('Submit')
         if submitted:
             generate_response(text)
+
+    # Display existing chat messages AFTER form submission
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
