@@ -1,5 +1,4 @@
 import streamlit as st
-
 import langchain, pinecone
 from langchain.llms import OpenAI
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -18,10 +17,32 @@ openai_api_key = st.secrets['OPENAI_API_KEY']
 pinecone_api_key = st.secrets['PINECONE_API_KEY']
 
 # Initialize Pinecone
-pinecone.init(api_key=pinecone_api_key, environment="us-west1-gcp-free")
+pinecone.init(
+    api_key=pinecone_api_key,
+    environment="us-west1-gcp-free"  # Replace with your environment
+)
+embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
 
 # Create a variable to hold the current index name
 current_index_name = None
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Upload PDF or Text File
+
+
+def read_pdf(uploaded_pdf):
+    pdf_reader = PyPDF2.PdfReader(uploaded_pdf)
+    num_pages = len(pdf_reader.pages) 
+    
+    text_content = ""
+
+    for page_num in range(num_pages):
+        page = pdf_reader.pages[page_num]
+        text_content += page.extract_text()
+    
+    return text_content
 
 uploaded_file = st.file_uploader("Choose a text or PDF file", type=['txt', 'pdf'])
 
