@@ -9,6 +9,8 @@ from langchain.callbacks import get_openai_callback
 from langchain.chains.question_answering import load_qa_chain
 #import environment variables
 import PyPDF2
+import uuid
+
 
 # Streamlit Setup
 st.title('Search Demo')
