@@ -36,8 +36,6 @@ if uploaded_file is not None:
     # Update the current index name
     current_index_name = new_index_name
 
-    # Create a new index
-    pinecone.create_index(name=current_index_name, metric='cosine', shards=1)
     
     if uploaded_file.type == "application/pdf":
         file_content = read_pdf(uploaded_file)
@@ -57,7 +55,7 @@ if uploaded_file is not None:
 
     # Create Pinecone index
     with get_openai_callback() as cb:
-        book_docsearch = Pinecone.from_texts([t.page_content for t in book_texts], embeddings, index_name=index_name)
+        book_docsearch = Pinecone.from_texts([t.page_content for t in book_texts], embeddings, index_name=current_index_name)
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
